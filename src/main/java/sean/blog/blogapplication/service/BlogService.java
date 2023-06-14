@@ -1,9 +1,11 @@
 package sean.blog.blogapplication.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import sean.blog.blogapplication.domain.Article;
 import sean.blog.blogapplication.dto.AddArticleRequest;
+import sean.blog.blogapplication.dto.UpdateArticleRequest;
 import sean.blog.blogapplication.repository.BlogRepository;
 
 import java.util.List;
@@ -32,5 +34,16 @@ public class BlogService {
     // 블로그 글 삭제 메서드
     public void delete(long id) {
         blogRepository.deleteById(id);
+    }
+
+    // 블로그 글 수정 메서드
+    @Transactional // 트랜잭션 메서드: 매칭한 메서드를 하나의 트랜잭션으로 묶는 역할
+    // 즉, update()에서 엔티티의 필드 값이 바뀌면 중간에 에러가 발생해도 제대로된 값 수정을 보장
+    public Article update(long id, UpdateArticleRequest request) {
+        Article article = blogRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("not found: " + id));
+
+        article.update(request.getTitle(), request.getContent());
+
+        return article;
     }
 }
